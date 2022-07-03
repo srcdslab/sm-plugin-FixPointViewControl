@@ -46,6 +46,7 @@ public Action Event_PlayerDeath(Handle hEvent, const char[] szName, bool bDontBr
 {
 	int client = GetClientOfUserId(GetEventInt(hEvent, "userid"));
 	DisableViewControl(client);
+	return Plugin_Continue;
 }
 
 public void OnClientDisconnect(int client)
