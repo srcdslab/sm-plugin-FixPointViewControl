@@ -6,8 +6,8 @@ This repository contains a SourceMod plugin called **FixPointViewControl** that 
 
 **Key Technical Details:**
 - **Language**: SourcePawn
-- **Platform**: SourceMod 1.12+ (configured for 1.11.0-git6917 minimum)
-- **Build System**: SourceKnight (modern SourceMod build tool)
+- **Platform**: SourceMod 1.12+
+- **Build System**: Native GitHub Actions workflow using `rumblefrog/setup-sp` (SourcePawn compiler)
 - **Primary Function**: Hooks `point_viewcontrol` entities to fix disable functionality
 
 ## Project Structure
@@ -15,30 +15,27 @@ This repository contains a SourceMod plugin called **FixPointViewControl** that 
 ```
 /addons/sourcemod/scripting/
 ├── FixPointViewControl.sp    # Main plugin source code
-/sourceknight.yaml           # Build configuration
 /.github/workflows/ci.yml    # CI/CD pipeline
 /.gitignore                  # Git ignore patterns
 ```
 
 ## Build System & Development Workflow
 
-### SourceKnight Build Tool
-This project uses SourceKnight for compilation, configured in `sourceknight.yaml`:
-- **Target**: SourceMod 1.11.0-git6917
-- **Output**: `/addons/sourcemod/plugins`
-- **Build Command**: Use GitHub Actions or install SourceKnight locally
+### Native GitHub Actions Build
+This project compiles directly with the SourcePawn compiler provisioned via `rumblefrog/setup-sp`, configured in `.github/workflows/ci.yml`:
+- **Target**: SourceMod 1.12.x
+- **Output**: `addons/sourcemod/plugins`
+- **Build Command**: Use GitHub Actions (no local build tool required beyond `spcomp`)
 
 ### Building Locally
 ```bash
-# If SourceKnight is installed:
-sourceknight build
-
-# The compiled .smx file will be in the configured output directory
+# Compile directly with spcomp from the scripting directory:
+spcomp -o ../plugins/FixPointViewControl.smx FixPointViewControl.sp
 ```
 
 ### CI/CD Pipeline
 - Automatic builds on push/PR via GitHub Actions
-- Uses `maxime1907/action-sourceknight@v1` action
+- Uses `rumblefrog/setup-sp` to provision the SourcePawn compiler and compiles with `spcomp` directly
 - Creates releases with artifacts for master/main branch pushes
 - Tags latest builds automatically
 
@@ -152,7 +149,7 @@ When adding new features to this plugin:
 ## Troubleshooting Common Issues
 
 ### Build Failures
-- Ensure SourceKnight configuration matches SourceMod version
+- Ensure the SourceMod version pinned in `.github/workflows/ci.yml` (`rumblefrog/setup-sp`) matches project requirements
 - Check that all required includes are available
 - Validate gamedata files exist for target SourceMod version
 
