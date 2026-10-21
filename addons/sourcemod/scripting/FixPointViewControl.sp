@@ -11,49 +11,49 @@ public Plugin myinfo =
 	name = "FixPointViewcontrol",
 	author = "xen + BotoX",
 	description = "Fixes the point_viewcontrol bug",
-	version = "1.1",
+	version = "1.2",
 	url = ""
 }
 
-Handle g_hAcceptInput;
+DynamicHook g_hAcceptInput;
 
 public void OnPluginStart()
 {
 	// Gamedata.
-	Handle hConfig = LoadGameConfigFile("sdktools.games");
-	if (hConfig == INVALID_HANDLE)
+	GameData hConfig = new GameData("sdktools.games");
+	if (hConfig == null)
 		SetFailState("Couldn't load sdktools game config!");
 
-	int offset = GameConfGetOffset(hConfig, "AcceptInput");
+	int offset = hConfig.GetOffset("AcceptInput");
 	if (offset == -1)
 		SetFailState("Failed to find AcceptInput offset");
 
 	delete hConfig;
 
 	// DHooks.
-	g_hAcceptInput = DHookCreate(offset, HookType_Entity, ReturnType_Bool, ThisPointer_CBaseEntity, Hook_AcceptInput);
-	DHookAddParam(g_hAcceptInput, HookParamType_CharPtr);
-	DHookAddParam(g_hAcceptInput, HookParamType_CBaseEntity);
-	DHookAddParam(g_hAcceptInput, HookParamType_CBaseEntity);
-	DHookAddParam(g_hAcceptInput, HookParamType_Object, 20, DHookPass_ByVal|DHookPass_ODTOR|DHookPass_OCTOR|DHookPass_OASSIGNOP);
-	DHookAddParam(g_hAcceptInput, HookParamType_Int);
+	g_hAcceptInput = new DynamicHook(offset, HookType_Entity, ReturnType_Bool, ThisPointer_CBaseEntity);
+	g_hAcceptInput.AddParam(HookParamType_CharPtr);
+	g_hAcceptInput.AddParam(HookParamType_CBaseEntity);
+	g_hAcceptInput.AddParam(HookParamType_CBaseEntity);
+	g_hAcceptInput.AddParam(HookParamType_Object, 20, DHookPass_ByVal|DHookPass_ODTOR|DHookPass_OCTOR|DHookPass_OASSIGNOP);
+	g_hAcceptInput.AddParam(HookParamType_Int);
 }
 
 public void OnEntityCreated(int entity, const char[] classname)
 {
 	if (StrEqual(classname, "point_viewcontrol"))
-		DHookEntity(g_hAcceptInput, false, entity);
+		g_hAcceptInput.HookEntity(Hook_Pre, entity, Hook_AcceptInput);
 }
 
-public MRESReturn Hook_AcceptInput(int entity, Handle hReturn, Handle hParams)
+public MRESReturn Hook_AcceptInput(int entity, DHookReturn hReturn, DHookParam hParams)
 {
 	char sCommand[128];
-	DHookGetParamString(hParams, 1, sCommand, sizeof(sCommand));
+	hParams.GetString(1, sCommand, sizeof(sCommand));
 
-	if(DHookIsNullParam(hParams, 2))
+	if(hParams.IsNull(2))
 		return MRES_Ignored;
 
-	int iActivator = DHookGetParam(hParams, 2);
+	int iActivator = hParams.Get(2);
 	
 	if (iActivator < 1 || iActivator > MaxClients)
 		return MRES_Ignored;
