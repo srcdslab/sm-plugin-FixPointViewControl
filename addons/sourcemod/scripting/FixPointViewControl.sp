@@ -11,7 +11,7 @@ public Plugin myinfo =
 	name = "FixPointViewcontrol",
 	author = "xen + BotoX",
 	description = "Fixes the point_viewcontrol bug",
-	version = "1.2",
+	version = "1.2.1",
 	url = ""
 }
 
